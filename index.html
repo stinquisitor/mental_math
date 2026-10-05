@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ментальная арифметика — тренажёр</title>
+  <meta name="description" content="Генератор примеров для ментальной арифметики на абакусе: просто, младшие и старшие товарищи, комбинированные формулы.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='4' width='28' height='24' rx='4' fill='%23c2410c'/%3E%3Cpath d='M9 8v16M16 8v16M23 8v16M4 13h24' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='9' cy='10' r='2.5' fill='%23fde68a'/%3E%3Ccircle cx='16' cy='19' r='2.5' fill='%23fde68a'/%3E%3Ccircle cx='23' cy='17' r='2.5' fill='%23fde68a'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="2" y="4" width="28" height="24" rx="4" fill="currentColor"/>
+      <path d="M9 8v16M16 8v16M23 8v16M4 13h24" stroke="var(--bg)" stroke-width="2"/>
+      <circle cx="9" cy="10" r="2.5" fill="var(--bead)"/><circle cx="16" cy="19" r="2.5" fill="var(--bead)"/><circle cx="23" cy="17" r="2.5" fill="var(--bead)"/>
+    </svg>
+    <div>
+      <h1>Ментальная арифметика</h1>
+      <p class="subtitle">Тренажёр сложения и вычитания на абакусе</p>
+    </div>
+  </header>
+
+  <main>
+    <form class="card settings" id="settings" autocomplete="off">
+      <fieldset class="field">
+        <legend>Тема</legend>
+        <div class="segmented" id="themes" role="radiogroup"></div>
+        <p class="hint" id="themeName"></p>
+      </fieldset>
+
+      <fieldset class="field" id="formulaBox">
+        <legend>Тренируемые формулы <span class="legend-note">— встречаются в каждом примере</span></legend>
+        <div id="formulaChips" class="chips-groups"></div>
+        <div class="chip-actions">
+          <button type="button" class="link-btn" data-select="all">Выбрать все</button>
+          <button type="button" class="link-btn" data-select="none">Снять все</button>
+        </div>
+        <label class="check"><input type="checkbox" name="allowTheme"> Разрешить остальные формулы этой темы</label>
+        <label class="check" id="allowPrevLabel"><input type="checkbox" name="allowPrev"> Разрешить формулы предыдущих тем</label>
+      </fieldset>
+
+      <fieldset class="field" id="simpleBox">
+        <legend>Косточки</legend>
+        <label class="check"><input type="checkbox" name="lowerOnly"> Только нижние косточки (числа 1–4)</label>
+      </fieldset>
+
+      <div class="grid-fields">
+        <label class="field">
+          <span class="label">Разрядность чисел</span>
+          <select name="digits">
+            <optgroup label="Одинаковая">
+              <option value="1-1">1 разряд</option>
+              <option value="2-2">2 разряда</option>
+              <option value="3-3">3 разряда</option>
+              <option value="4-4">4 разряда</option>
+              <option value="5-5">5 разрядов</option>
+            </optgroup>
+            <optgroup label="Разная внутри примера">
+              <option value="1-2">1–2 разряда</option>
+              <option value="1-3">1–3 разряда</option>
+              <option value="1-4">1–4 разряда</option>
+              <option value="1-5">1–5 разряда</option>
+              <option value="2-3">2–3 разряда</option>
+              <option value="2-4">2–4 разряда</option>
+              <option value="2-5">2–5 разряда</option>
+              <option value="3-4">3–4 разряда</option>
+              <option value="3-5">3–5 разряда</option>
+              <option value="4-5">4–5 разряда</option>
+            </optgroup>
+          </select>
+        </label>
+        <label class="field">
+          <span class="label">Чисел в примере</span>
+          <input type="number" name="rows" min="2" max="30" required>
+        </label>
+        <label class="field">
+          <span class="label">Количество примеров</span>
+          <input type="number" name="count" min="1" max="200" required>
+        </label>
+        <label class="field">
+          <span class="label">Действия</span>
+          <select name="ops">
+            <option value="mix">+ и −</option>
+            <option value="add">Только +</option>
+            <option value="sub">Только −</option>
+          </select>
+        </label>
+        <label class="field" id="minFocusField">
+          <span class="label">Формула в примере</span>
+          <select name="minFocus">
+            <option value="1">не реже 1 раза</option>
+            <option value="2">не реже 2 раз</option>
+            <option value="3">не реже 3 раз</option>
+            <option value="4">не реже 4 раз</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="settings-footer">
+        <button type="submit" class="btn primary">Составить новые примеры</button>
+        <span class="code-badge" id="codeBadge" title="Обозначение как в сборниках: разрядность (Д) и количество чисел (Р)"></span>
+      </div>
+    </form>
+
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" id="tab-sheet" aria-controls="sheetView" aria-selected="true">Лист примеров</button>
+      <button type="button" role="tab" id="tab-flash" aria-controls="flashView" aria-selected="false">Флеш-анзан</button>
+    </nav>
+
+    <section id="sheetView" role="tabpanel" aria-labelledby="tab-sheet">
+      <div class="toolbar">
+        <button type="button" class="btn" id="checkBtn">Проверить</button>
+        <label class="toggle"><input type="checkbox" id="showAnswers"> Ответы</label>
+        <label class="toggle"><input type="checkbox" id="showFormulas"> Формулы</label>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" id="newVariantBtn" title="Те же настройки, другие примеры">Новый вариант</button>
+        <button type="button" class="btn ghost" id="copyLinkBtn" title="Ссылка открывает именно этот вариант">Ссылка</button>
+        <button type="button" class="btn ghost" id="printBtn">Печать</button>
+      </div>
+      <p class="score" id="score" aria-live="polite"></p>
+      <p class="notice" id="notice" hidden></p>
+      <div id="sheet" class="sheet"></div>
+    </section>
+
+    <section id="flashView" role="tabpanel" aria-labelledby="tab-flash" hidden>
+      <div class="card flash-card">
+        <div class="flash-controls">
+          <label class="field speed">
+            <span class="label">Показ одного числа: <output id="speedOut">1,0</output> с</span>
+            <input type="range" id="speed" min="0.3" max="3" step="0.1" value="1">
+          </label>
+          <label class="check" id="voiceLabel"><input type="checkbox" id="voice"> Озвучивать числа (диктант)</label>
+          <span class="spacer"></span>
+          <button type="button" class="btn primary" id="flashStart">Старт</button>
+        </div>
+        <p class="hint">Числа текущего листа показываются по одному. Считайте в уме и введите ответ.</p>
+
+        <div class="flash-stage" id="flashStage">
+          <div class="flash-progress" id="flashProgress"></div>
+          <div class="flash-display" id="flashDisplay" aria-live="assertive"></div>
+          <form class="flash-answer" id="flashAnswer" hidden>
+            <input id="flashInput" inputmode="numeric" autocomplete="off" placeholder="Ответ" aria-label="Ответ">
+            <button type="submit" class="btn primary">Ответить</button>
+          </form>
+          <div class="flash-feedback" id="flashFeedback" hidden></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">Примеры проверяются по модели абакуса: в них используются только выбранные формулы.</footer>
+</body>
+</html>
